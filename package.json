@@ -1,6 +1,6 @@
 {
   "name": "codemirror-lang-cpp-arduino",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "C++ language support for the CodeMirror code editor (with Arduino syntax support)",
   "scripts": {
     "test": "cm-runtests",
