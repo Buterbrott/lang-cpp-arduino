@@ -11,20 +11,33 @@ const ScopeNodes = new Set([
   "PreprocDirective"
 ])
 
-function defID(type: string) {
-    return (node: SyntaxNodeRef, def: (node: SyntaxNodeRef, type: string) => void, outer: boolean) => {
-      if (outer) return false
-      let id = node.node.getChild("Identifier")
-      if (id) def(id, type)
-      return true
+function defIDs(type: string, spec?: string) {
+  return (node: SyntaxNodeRef, def: (node: SyntaxNodeRef, type: string) => void) => {
+    outer: for (let cur = node.node.firstChild, depth = 0, parent: SyntaxNode | null = null;;) {
+      while (!cur) {
+        if (!depth) break outer
+        depth--
+        cur = parent!.nextSibling
+        parent = parent!.parent
+      }
+      if (spec && cur.name == spec) {
+        depth++
+        parent = cur
+        cur = cur.firstChild
+      } else {
+        if (cur.name == "Identifier") def(cur!, type)
+        cur = cur.nextSibling
+      }
     }
+    return true
   }
+}
 
 const gatherCompletions: {
     [node: string]: (node: SyntaxNodeRef, def: (node: SyntaxNodeRef, type: string) => void, outer: boolean) => void | boolean
   } = {
-    FunctionDefinition: defID("function"),
-    PreprocDirective: defID("variable"),
+    FunctionDefinition: defIDs("function","FunctionDeclarator"),
+    PreprocDirective: defIDs("variable"),
     // ClassDefinition: defID("class"),
     // ForStatement(node, def, outer) {
     //   if (outer) for (let child = node.node.firstChild; child; child = child.nextSibling) {
@@ -53,8 +66,8 @@ const gatherCompletions: {
     //     prev = child
     //   }
     // },
-    CapturePattern: defID("variable"),
-    AsPattern: defID("variable"),
+    CapturePattern: defIDs("variable"),
+    AsPattern: defIDs("variable"),
     __proto__: null as any
   }
 
