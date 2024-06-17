@@ -14,7 +14,7 @@ const ScopeNodes = new Set([
 function defID(type: string) {
     return (node: SyntaxNodeRef, def: (node: SyntaxNodeRef, type: string) => void, outer: boolean) => {
       if (outer) return false
-      let id = node.node.getChild("variableName")
+      let id = node.node.getChild("Identifier")
       if (id) def(id, type)
       return true
     }
@@ -90,7 +90,7 @@ const dontComplete = ["String", "FormatString", "Comment", "PropertyName"]
 export function localCompletionSource(context: CompletionContext): CompletionResult | null {
     let inner = syntaxTree(context.state).resolveInner(context.pos, -1)
     if (dontComplete.indexOf(inner.name) > -1) return null
-    let isWord = inner.name == "variableName" ||
+    let isWord = inner.name == "Identifier" ||
       inner.to - inner.from < 20 && Identifier.test(context.state.sliceDoc(inner.from, inner.to))
     if (!isWord && !context.explicit) return null
     let options: Completion[] = []
