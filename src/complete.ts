@@ -34,8 +34,8 @@ function defIDs(type: string, spec?: string) {
 }
 
 const gatherCompletions: {
-    [node: string]: (node: SyntaxNodeRef, def: (node: SyntaxNodeRef, type: string) => void, outer: boolean) => void | boolean
-  } = {
+  [node: string]: (node: SyntaxNodeRef, def: (node: SyntaxNodeRef, type: string) => void) => void | boolean
+} = {
     FunctionDefinition: defIDs("function","FunctionDeclarator"),
     PreprocDirective: defIDs("variable"),
     // ClassDefinition: defID("class"),
@@ -81,15 +81,16 @@ function getScope(doc: Text, node: SyntaxNode) {
       completions.push({label: name, type})
     }
     node.cursor(IterMode.IncludeAnonymous).iterate(node => {
-      if (node.name) {
-        let gather = gatherCompletions[node.name]
-        if (gather && gather(node, def, top) || !top && ScopeNodes.has(node.name)) return false
+      if (top) {
         top = false
+      } else if (node.name) {
+        let gather = gatherCompletions[node.name]
+        if (gather && gather(node, def) || ScopeNodes.has(node.name)) return false
       } else if (node.to - node.from > 8192) {
         // Allow caching for bigger internal nodes
         for (let c of getScope(doc, node.node)) completions.push(c)
         return false
-      }
+      } 
     })
     cache.set(node, completions)
     return completions
