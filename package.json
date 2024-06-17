@@ -1,7 +1,7 @@
 {
-  "name": "@codemirror/lang-cpp",
-  "version": "6.0.2",
-  "description": "C++ language support for the CodeMirror code editor",
+  "name": "codemirror-lang-cpp-arduino",
+  "version": "1.0.0",
+  "description": "C++ language support for the CodeMirror code editor (with Arduino syntax support)",
   "scripts": {
     "test": "cm-runtests",
     "prepare": "cm-buildhelper src/cpp.ts"
@@ -11,9 +11,7 @@
     "code"
   ],
   "author": {
-    "name": "Marijn Haverbeke",
-    "email": "marijn@haverbeke.berlin",
-    "url": "http://marijnhaverbeke.nl"
+    "name": "Buterbrott"
   },
   "type": "module",
   "main": "dist/index.cjs",
@@ -26,14 +24,14 @@
   "sideEffects": false,
   "license": "MIT",
   "dependencies": {
-    "@codemirror/language": "^6.0.0",
-    "@lezer/cpp": "^1.0.0"
+    "@codemirror/language": "^6.10.2",
+    "lezer-cpp-arduino": "^1.0.0"
   },
   "devDependencies": {
-    "@codemirror/buildhelper": "^1.0.0"
+    "@codemirror/buildhelper": "^1.0.1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/codemirror/lang-cpp.git"
+    "url": "https://github.com/buterbrott/lang-cpp-arduino.git"
   }
 }
