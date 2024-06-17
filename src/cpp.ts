@@ -2,7 +2,7 @@ import {parser} from "lezer-cpp-arduino"
 import {flatIndent, continuedIndent, delimitedIndent, indentNodeProp,
         foldNodeProp, foldInside,
         LRLanguage, LanguageSupport, syntaxTree} from "@codemirror/language"
-import {localCompletionSource} from "./complete"
+import {localCompletionSource,globalCompletion} from "./complete"
 import {Extension} from "@codemirror/state"
 
 /// A language provider based on the [Lezer C++
@@ -39,5 +39,6 @@ export const cppLanguage = LRLanguage.define({
 export function cpp() {
   return new LanguageSupport(cppLanguage,[
     cppLanguage.data.of({autocomplete: localCompletionSource}),
+    cppLanguage.data.of({autocomplete: globalCompletion}),
   ])
 }

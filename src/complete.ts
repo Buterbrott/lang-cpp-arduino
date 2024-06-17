@@ -51,8 +51,8 @@ const gatherCompletions: {
     //     prev = child
     //   }
     // },
-    // CapturePattern: defID("variable"),
-    // AsPattern: defID("variable"),
+    CapturePattern: defID("variable"),
+    AsPattern: defID("variable"),
     __proto__: null as any
   }
 
@@ -101,4 +101,30 @@ export function localCompletionSource(context: CompletionContext): CompletionRes
       validFor: Identifier
     }
   }
+
+  const globals: readonly Completion[] = [
+    "false", "true"
+  ].map(n => ({label: n, type: "constant"})).concat([
+    "bool", "byte"
+  ].map(n => ({label: n, type: "type"}))).concat([
+    "CRGB"
+  ].map(n => ({label: n, type: "class"}))).concat([
+    "abs"
+  ].map(n => ({label: n, type: "function"})))
+  
+  export const snippets: readonly Completion[] = [
+    snip("for ( ${type} ${name} = ${min}; ${name} < ${max}; ${name}++\n\t${}", {
+      label: "for",
+      detail: "loop",
+      type: "keyword"
+    }),
+    snip("if () ${}:\n\t\n", {
+      label: "if",
+      detail: "block",
+      type: "keyword"
+    })
+  ]
+  
+  /// Autocompletion for built-in Python globals and keywords.
+  export const globalCompletion = ifNotIn(dontComplete, completeFromList(globals.concat(snippets)))
   
