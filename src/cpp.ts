@@ -1,7 +1,8 @@
-import {parser} from "@lezer/cpp"
+import {parser} from "lezer-cpp-arduino"
 import {flatIndent, continuedIndent, delimitedIndent, indentNodeProp,
         foldNodeProp, foldInside,
-        LRLanguage, LanguageSupport} from "@codemirror/language"
+        LRLanguage, LanguageSupport, syntaxTree} from "@codemirror/language"
+import {CompletionContext} from "@codemirror/autocomplete"
 
 /// A language provider based on the [Lezer C++
 /// parser](https://github.com/lezer-parser/cpp), extended with
@@ -28,9 +29,29 @@ export const cppLanguage = LRLanguage.define({
   languageData: {
     commentTokens: {line: "//", block: {open: "/*", close: "*/"}},
     indentOnInput: /^\s*(?:case |default:|\{|\})$/,
-    closeBrackets: {stringPrefixes: ["L", "u", "U", "u8", "LR", "UR", "uR", "u8R", "R"]}
+    closeBrackets: {stringPrefixes: ["L", "u", "U", "u8", "LR", "UR", "uR", "u8R", "R"]},
+    autocomplete: completeCppDoc
   }
 })
+
+const tagOptions = [
+  "function"
+].map(tag => ({label: "@" + tag, type: "keyword"}))
+
+function completeCppDoc(context: CompletionContext) {
+  let nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1)
+  if (nodeBefore.name != "BlockComment" ||
+      context.state.sliceDoc(nodeBefore.from, nodeBefore.from + 3) != "/**")
+    return null
+  let textBefore = context.state.sliceDoc(nodeBefore.from, context.pos)
+  let tagBefore = /@\w*$/.exec(textBefore)
+  if (!tagBefore && !context.explicit) return null
+  return {
+    from: tagBefore ? nodeBefore.from + tagBefore.index : context.pos,
+    options: tagOptions,
+    validFor: /^(@\w*)?$/
+  }
+}
 
 /// Language support for C++.
 export function cpp() {

@@ -24,6 +24,7 @@
   "sideEffects": false,
   "license": "MIT",
   "dependencies": {
+    "@codemirror/autocomplete": "^6.16.2",
     "@codemirror/language": "^6.10.2",
     "lezer-cpp-arduino": "^1.0.0"
   },
