@@ -7,13 +7,14 @@ import {Text} from "@codemirror/state"
 const cache = new NodeWeakMap<readonly Completion[]>()
 
 const ScopeNodes = new Set([
-  "FunctionDefinition"
+  "FunctionDefinition",
+  "PreprocDirective"
 ])
 
 function defID(type: string) {
     return (node: SyntaxNodeRef, def: (node: SyntaxNodeRef, type: string) => void, outer: boolean) => {
       if (outer) return false
-      let id = node.node.getChild("VariableName")
+      let id = node.node.getChild("variableName")
       if (id) def(id, type)
       return true
     }
@@ -23,6 +24,7 @@ const gatherCompletions: {
     [node: string]: (node: SyntaxNodeRef, def: (node: SyntaxNodeRef, type: string) => void, outer: boolean) => void | boolean
   } = {
     FunctionDefinition: defID("function"),
+    PreprocDirective: defID("variable"),
     // ClassDefinition: defID("class"),
     // ForStatement(node, def, outer) {
     //   if (outer) for (let child = node.node.firstChild; child; child = child.nextSibling) {
@@ -88,7 +90,7 @@ const dontComplete = ["String", "FormatString", "Comment", "PropertyName"]
 export function localCompletionSource(context: CompletionContext): CompletionResult | null {
     let inner = syntaxTree(context.state).resolveInner(context.pos, -1)
     if (dontComplete.indexOf(inner.name) > -1) return null
-    let isWord = inner.name == "VariableName" ||
+    let isWord = inner.name == "variableName" ||
       inner.to - inner.from < 20 && Identifier.test(context.state.sliceDoc(inner.from, inner.to))
     if (!isWord && !context.explicit) return null
     let options: Completion[] = []
@@ -113,12 +115,12 @@ export function localCompletionSource(context: CompletionContext): CompletionRes
   ].map(n => ({label: n, type: "function"})))
   
   export const snippets: readonly Completion[] = [
-    snip("for ( ${type} ${name} = ${min}; ${name} < ${max}; ${name}++\n\t${}", {
+    snip("for ( ${type} ${name} = ${min}; ${name} < ${max}; ${name}++ )\n\t${}", {
       label: "for",
       detail: "loop",
       type: "keyword"
     }),
-    snip("if () ${}:\n\t\n", {
+    snip("if ()\n\t${}", {
       label: "if",
       detail: "block",
       type: "keyword"
